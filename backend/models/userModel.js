@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const config = require('../config/key');
+const config = require('config');
 const jwt = require("jsonwebtoken");
 const Joi = require("joi");
 
@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema({
 userSchema.methods.generateAuthToken = function () {
   return jwt.sign(
     { id: this._id, isAdmin: this.isAdmin },
-    config.JWT_PRIVATEKEY,
+    config.get('JWT_PRIVATEKEY'),
     { expiresIn: 3600 }
   );
 };

@@ -1,6 +1,7 @@
 const express = require("express");
 const moment = require("moment");
 const { Haiku, validate } = require("../models/haikuModel");
+const auth = require('../routes/middleware/auth');
 
 const router = express.Router();
 
@@ -59,7 +60,7 @@ router.get("/scramble", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(401).json({ msg: error.details[0].message });
 
@@ -83,7 +84,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
   const { error } = validate(req.body);
   if (error) return res.status(400).json({ msg: error.details[0].message });
 
@@ -106,7 +107,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", auth, async (req, res) => {
   const haiku = await Haiku.findByIdAndRemove(req.params.id);
   if (haiku) {
     res.json(haiku);

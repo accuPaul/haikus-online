@@ -3,13 +3,15 @@ const mongoose = require("mongoose");
 const haikuRoute = require("./backend/routes/haikuRoute");
 const authRoute = require("./backend/routes/authRoute");
 const userRoute = require("./backend/routes/userRoute");
+const config = require('config');
 const path = require('path');
 const app = express();
 
 app.use(express.json());
 
 // DB connection...
-const db = require("./backend/config/key").mongoURL;
+const db = config.get("mongoURI");
+
 mongoose
   .connect(db, {
     useCreateIndex: true,
@@ -25,6 +27,7 @@ const PORT = process.env.PORT || 5000;
 
 app.use("/haikus", haikuRoute);
 app.use("/users", userRoute);
+app.use('/auth', authRoute);
 
 // Serve static assets in production
 

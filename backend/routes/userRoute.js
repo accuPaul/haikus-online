@@ -1,10 +1,11 @@
 const express = require('express');
 const { User, validate } = require('../models/userModel');
 const bcrypt = require('bcryptjs');
-
 const router = express.Router();
+const auth = require('../routes/middleware/auth');
+const admin = require('../routes/middleware/admin');
 
-router.get("/", async (req, res) => {
+router.get("/", [auth, admin], async (req, res) => {
     const users = await User.find({}).sort('name').select('-password');
     if (users) {
         res.json(users);
@@ -13,12 +14,12 @@ router.get("/", async (req, res) => {
     }
 });
 
-router.get('/me', async (req, res) => {
+router.get('/me', auth, async (req, res) => {
     const user = await User.findById(req.user._id).select('-password');
     res.send(user);
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", [auth, admin], async (req, res) => {
     const userId = req.params.id;
     const user = await User.findById(userId).select('-password');
     if (user) {
@@ -61,7 +62,7 @@ router.post("/", async (req, res) => {
 
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", auth, async (req, res) => {
     const { error } = validate(req.body);
     if (error) return res.status(400).json({ msg: error.details[0].message });
 
@@ -78,7 +79,7 @@ router.put("/:id", async (req, res) => {
     res.json(user);
 });
 
-router.put("/changepassword/:id", async (req, res) => {
+router.put("/changepassword/:id", auth, async (req, res) => {
     const newPassword = req.body.password;
     if (!newPassword || newPassword.length < 8) return res.status(400).json({ msg: 'Password must be at least 8 characters' });
 
@@ -95,7 +96,7 @@ router.put("/changepassword/:id", async (req, res) => {
     res.json(user);
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", [auth, admin], async (req, res) => {
     const user = await User.findByIdAndRemove(req.params.id);
     if (user) {
         res.json(user);
