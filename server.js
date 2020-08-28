@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const haikuRoute = require("./backend/routes/haikuRoute");
+const scrambleRoute = require("./backend/routes/scrambleRoute");
 const authRoute = require("./backend/routes/authRoute");
 const userRoute = require("./backend/routes/userRoute");
 const config = require('config');
@@ -26,6 +27,7 @@ mongoose
 const PORT = process.env.PORT || 5000;
 
 app.use("/haikus", haikuRoute);
+app.use("/scramble", scrambleRoute);
 app.use("/users", userRoute);
 app.use('/auth', authRoute);
 

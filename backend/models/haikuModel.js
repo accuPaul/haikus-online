@@ -44,6 +44,10 @@ const haikuSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  isScramble: {
+    type: Boolean,
+    default: false
+  },
   dateAdded: {
     type: Date,
     default: Date.now,

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import AppNavbar from './components/AppNavbar';
 import HaikuList from './components/HaikuList';
-import HaikuModal from './components/haikuModal'
+import HaikuModal from './components/HaikuModal'
 import { Provider } from 'react-redux';
 import { Container } from 'reactstrap';
 import store from './store';

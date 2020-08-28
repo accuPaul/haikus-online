@@ -28,7 +28,7 @@ export const loadUser = () => (dispatch, getState) => {
         });
 };
 
-// Register user
+// Register new user
 export const register = ({ name, email, password }) => dispatch => {
     const config = {
         headers: {
@@ -50,6 +50,32 @@ export const register = ({ name, email, password }) => dispatch => {
             });
         });
 };
+
+// Log in existing user...
+
+export const login = ({ email, password }) => dispatch => {
+    const config = {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }
+
+    const body = JSON.stringify({ email, password });
+
+    axios.post('/auth', body, config)
+        .then(res => dispatch({
+            type: LOGIN_SUCCESS,
+            payload: res.data
+        }))
+        .catch(error => {
+            dispatch(returnErrors(error.response.data, error.response.status, 'LOGIN_FAIL'));
+            dispatch({
+                type: LOGIN_FAIL
+            });
+        });
+};
+
+// Log out user
 
 export const logout = () => {
     return {

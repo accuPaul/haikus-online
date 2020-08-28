@@ -1,4 +1,4 @@
-import { GET_HAIKUS, ADD_HAIKU, DELETE_HAIKU, HAIKUS_LOADING } from '../actions/constants'
+import { GET_HAIKUS, ADD_HAIKU, DELETE_HAIKU, HAIKUS_LOADING, ADD_LIKE } from '../actions/constants'
 
 const initialState = {
     haikus: [],
@@ -18,11 +18,13 @@ export default function (state = initialState, action) {
                 ...state,
                 haikus: state.haikus.filter(haiku => haiku._id !== action.payload)
             };
+        case ADD_LIKE:
         case ADD_HAIKU:
             return {
                 ...state,
                 haikus: [action.payload, ...state.haikus]
             };
+
         case HAIKUS_LOADING:
             return {
                 ...state,

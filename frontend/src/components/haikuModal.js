@@ -12,14 +12,27 @@ import {
 import { connect } from 'react-redux';
 import { FaEdit, FaSave } from 'react-icons/fa'
 import { addHaiku } from '../actions/haikuActions';
+import PropTypes from 'prop-types';
 
-class haikuModal extends Component {
+
+class HaikuModal extends Component {
     state = {
         modal: false,
         title: '',
         line1: '',
         line2: '',
-        line3: ''
+        line3: '',
+        author: '',
+        canShare: null,
+        canScramble: null,
+        isScramble: false,
+        access: ''
+    }
+
+
+    static propTypes = {
+        isAuthenticated: PropTypes.bool,
+        auth: PropTypes.object.isRequired
     }
 
     toggle = () => {
@@ -39,6 +52,10 @@ class haikuModal extends Component {
             line1: this.state.line1,
             line2: this.state.line2,
             line3: this.state.line3,
+            author: this.props.auth.user._id,
+            canShare: this.state.canShare,
+            canScramble: this.state.canScramble,
+            access: this.state.access
         }
 
         this.props.addHaiku(newHaiku);
@@ -48,11 +65,14 @@ class haikuModal extends Component {
     render() {
         return (
             <div>
-                <Button
-                    color="dark"
-                    style={{ marginBottom: '2rem' }}
-                    onClick={this.toggle}
-                ><FaEdit />Add Haiku</Button>
+                {this.props.isAuthenticated ?
+                    <Button
+                        color="dark"
+                        style={{ marginBottom: '2rem' }}
+                        onClick={this.toggle}
+                    ><FaEdit />Add Haiku</Button>
+                    : <h4 className="mb-3 ml-4">Log in to add your own haikus!</h4>}
+
 
                 <Modal
                     isOpen={this.state.modal}
@@ -92,6 +112,16 @@ class haikuModal extends Component {
                                     placeholder="Last five syllables"
                                     onChange={this.onChange}
                                 />
+                            </FormGroup>
+                            <FormGroup>
+                                <Input type="checkbox" name="canScramble" id="scrambleCheck" />
+                                <Label for="scrambleCheck" check>Allow to scramble?</Label>
+                                <Label for="accessLevel">Choose Privacy for this haiku</Label>
+                                <Input type="select" name="access" id="accessLevel">
+                                    <option value="public">Public (anyone can see it)</option>
+                                    <option value="private">Private (only you can see it</option>
+                                    <option value="anonymous">Anonymous (public, but no names are listed)</option>
+                                </Input>
                                 <Button
                                     color="dark"
                                     style={{ marginTop: '2rem' }}
@@ -109,7 +139,9 @@ class haikuModal extends Component {
 }
 
 const mapStateToProps = state => ({
-    haiku: state.haiku
+    haiku: state.haiku,
+    isAuthenticated: state.auth.isAuthenticated,
+    auth: state.auth
 })
 
-export default connect(mapStateToProps, { addHaiku })(haikuModal)
+export default connect(mapStateToProps, { addHaiku })(HaikuModal)

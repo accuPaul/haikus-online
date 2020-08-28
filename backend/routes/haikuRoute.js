@@ -5,7 +5,39 @@ const auth = require('../routes/middleware/auth');
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/today", async (req, res) => {
+  const dow = "Haiku " + moment().dayOfYear() + "/366";
+  const haiku = await Haiku.find({ title: dow });
+  if (haiku) {
+    res.json(haiku);
+  } else {
+    res.status(500).json({ msg: "Error retrieving haikus from DB." });
+  }
+});
+
+router.get("/recent", auth, async (req, res) => {
+  const haikus = await Haiku.find({ isScramble: false, $or: [{ 'access': 'public' }, { 'access': 'anonymous' }] }).sort({ dateAdded: -1 }).limit(10);
+  if (haikus) {
+    res.json(haikus);
+  } else {
+    res.status(500).json({ msg: "Error retrieving haikus from DB." });
+  }
+});
+
+router.get("/popular", auth, async (req, res) => {
+  const haikus = await Haiku.find({ isScramble: false, $or: [{ 'access': 'public' }, { 'access': 'anonymous' }] }).sort({ numberOfLikes: -1 }).limit(10);
+  if (haikus) {
+    res.json(haikus);
+  } else {
+    res.status(500).json({ msg: "Error retrieving haikus from DB." });
+  }
+});
+
+// @path GET /haikus/user/userID
+// @action  returns all haikus by that user
+// @access private
+
+router.get("/user/:id", auth, async (req, res) => {
   const haikus = await Haiku.find({}).sort({ dateAdded: -1 }).limit(10);
   if (haikus) {
     res.json(haikus);
@@ -21,42 +53,6 @@ router.get("/:id", async (req, res) => {
     res.status(200).json(haiku);
   } else {
     res.status(404).json({ msg: "Haiku not found" });
-  }
-});
-
-router.get("/today", async (req, res) => {
-  const dow = "Haiku " + moment().dayOfYear() + "/366";
-  const haiku = await Haiku.findOne({ title: dow });
-  if (haiku) {
-    res.json(haiku);
-  } else {
-    res.status(500).json({ msg: "Error retrieving haikus from DB." });
-  }
-});
-
-router.get("/scramble", async (req, res) => {
-  const haikus = await Haiku.find({ canScramble: true });
-  if (haikus) {
-    const keys = Object.keys(haikus);
-    let random = keys[Math.floor(Math.random() * keys.length)];
-    const line1 = haikus[random].line1 + " (" + haikus[random].title + ")";
-    random = keys[Math.floor(Math.random() * keys.length)];
-    const line2 = haikus[random].line2 + " (" + haikus[random].title + ")";
-    random = keys[Math.floor(Math.random() * keys.length)];
-    const line3 = haikus[random].line3 + " (" + haikus[random].title + ")";
-
-    const scrambleKu = new Haiku({
-      title: "Scramble-Ku!",
-      line1,
-      line2,
-      line3,
-      canScramble: false,
-      canShare: true,
-      access: "public",
-    });
-    res.json(scrambleKu);
-  } else {
-    res.status(500).json({ msg: "Error retrieving haikus from DB." });
   }
 });
 
@@ -76,6 +72,7 @@ router.post("/", auth, async (req, res) => {
     canShare: req.body.canShare,
     access: req.body.access,
   });
+  console.log('Saving new haiku', newHaiku);
   newHaiku = await newHaiku.save();
   if (newHaiku) {
     res.status(200).json(newHaiku);
@@ -97,6 +94,22 @@ router.put("/:id", auth, async (req, res) => {
       canShare: req.body.canShare,
       canScramble: req.body.canScramble,
       access: req.body.acess
+    },
+    { new: true }
+  );
+  if (haiku) {
+    res.status(200).json(haiku);
+  } else {
+    res.status(404).json({ msg: "Haiku not found" });
+  }
+});
+
+router.put("/like/:id", auth, async (req, res) => {
+  console.log(`Adding a like to ${req.params.id}`);
+
+  const haiku = await Haiku.findByIdAndUpdate(req.params.id,
+    {
+      $inc: { numberOfLikes: 1 }
     },
     { new: true }
   );

@@ -6,7 +6,7 @@ import {
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
 import { connect } from 'react-redux';
-import { getHaikus, deleteHaiku, addHaiku } from '../actions/haikuActions';
+import { getHaikus, deleteHaiku, addHaiku, upVote } from '../actions/haikuActions';
 import PropTypes from 'prop-types';
 
 class HaikuList extends Component {
@@ -15,9 +15,23 @@ class HaikuList extends Component {
         this.props.getHaikus();
     };
 
+    static propTypes = {
+        getHaikus: PropTypes.func.isRequired,
+        deleteHaiku: PropTypes.func.isRequired,
+        addHaiku: PropTypes.func.isRequired,
+        upVote: PropTypes.func.isRequired,
+        haiku: PropTypes.object.isRequired,
+        isAuthenticated: PropTypes.bool
+    };
+
     onDeleteClick = _id => {
         this.props.deleteHaiku(_id);
     };
+
+    onUpVoteClick = _id => {
+        console.log('upvote clicked');
+        this.props.upVote(_id);
+    }
 
     render() {
         const { haikus } = this.props.haiku;
@@ -41,19 +55,22 @@ class HaikuList extends Component {
                                                     </footer>
                                                 </blockquote>
                                             </CardText>
-                                            <Button
-                                                className="upVote-btn"
-                                                color="primary"
-                                            >
-                                                <FaThumbsUp />
-                                            </Button>
-                                            <Button
-                                                className="remove-btn"
-                                                color="danger"
-                                                onClick={this.onDeleteClick.bind(this, _id)}
-                                            >
-                                                < FaThumbsDown />
-                                            </Button>
+                                            {this.props.isAuthenticated ?
+                                                <Button
+                                                    className="upVote-btn"
+                                                    color="primary"
+                                                    onClick={this.onUpVoteClick.bind(this, _id)}
+                                                >
+                                                    <FaThumbsUp />
+                                                </Button>
+                                                /*<Button
+                                                    className="remove-btn"
+                                                    color="danger"
+                                                    onClick={this.onDeleteClick.bind(this, _id)}
+                                                >
+                                                    < FaThumbsDown />
+                                                </Button> */
+                                                : null}
                                         </CardBody>
                                     </Card>
                                 </ListGroupItem>
@@ -66,15 +83,9 @@ class HaikuList extends Component {
     }
 }
 
-HaikuList.propTypes = {
-    getHaikus: PropTypes.func.isRequired,
-    deleteHaiku: PropTypes.func.isRequired,
-    addHaiku: PropTypes.func.isRequired,
-    haiku: PropTypes.object.isRequired
-}
-
 const mapStateToProps = (state) => ({
-    haiku: state.haiku
+    haiku: state.haiku,
+    isAuthenticated: state.auth.isAuthenticated
 });
 
-export default connect(mapStateToProps, { getHaikus, deleteHaiku, addHaiku })(HaikuList);
+export default connect(mapStateToProps, { getHaikus, deleteHaiku, addHaiku, upVote })(HaikuList);
