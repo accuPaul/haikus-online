@@ -57,12 +57,16 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/", auth, async (req, res) => {
+  console.log('Passed authorization...');
+
   const { error } = validate(req.body);
   if (error) return res.status(401).json({ msg: error.details[0].message });
 
+  console.log('Passed validation...');
+
   let newHaiku = new Haiku({
     title: req.body.title,
-    author: req.body.author,
+    author: req.user.id,
     line1: req.body.line1,
     line1: req.body.line1,
     line2: req.body.line2,
@@ -71,6 +75,7 @@ router.post("/", auth, async (req, res) => {
     canScramble: req.body.canScramble,
     canShare: req.body.canShare,
     access: req.body.access,
+    likers: req.user.id
   });
   console.log('Saving new haiku', newHaiku);
   newHaiku = await newHaiku.save();
@@ -105,14 +110,17 @@ router.put("/:id", auth, async (req, res) => {
 });
 
 router.put("/like/:id", auth, async (req, res) => {
-  console.log(`Adding a like to ${req.params.id}`);
+
+  console.log(req.user.id);
 
   const haiku = await Haiku.findByIdAndUpdate(req.params.id,
     {
-      $inc: { numberOfLikes: 1 }
+      $addToSet: { likers: req.user.id }
     },
     { new: true }
   );
+  console.log(`Number of likes: ${haiku.likers.length}`);
+  haiku.numberOfLikes = haiku.likers.length;
   if (haiku) {
     res.status(200).json(haiku);
   } else {

@@ -1,4 +1,4 @@
-import { GET_HAIKUS, ADD_HAIKU, DELETE_HAIKU, HAIKUS_LOADING, ADD_LIKE } from './constants';
+import { GET_HAIKUS, ADD_HAIKU, DELETE_HAIKU, HAIKUS_LOADING, ADD_LIKE, HAIKU_ERROR } from './constants';
 import axios from 'axios';
 import { tokenConfig } from './authActions';
 import { returnErrors } from './errorActions';
@@ -26,7 +26,10 @@ export const addHaiku = (haiku) => (dispatch, getState) => {
         })
         )
         .catch(err =>
-            dispatch(returnErrors(err.response.data, err.response.status))
+            dispatch(returnErrors(err.response.data, err.response.status)),
+            dispatch({
+                type: HAIKU_ERROR
+            })
         );
 
 };

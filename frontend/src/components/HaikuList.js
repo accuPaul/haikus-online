@@ -31,6 +31,7 @@ class HaikuList extends Component {
     onUpVoteClick = _id => {
         console.log('upvote clicked');
         this.props.upVote(_id);
+        window.location.reload();
     }
 
     render() {
@@ -39,7 +40,7 @@ class HaikuList extends Component {
             <Container>
                 <ListGroup>
                     <TransitionGroup className="haiku-list">
-                        {haikus.map(({ _id, title, line1, line2, line3 }) => (
+                        {haikus.map(({ _id, title, line1, line2, line3, numberOfLikes }) => (
                             <CSSTransition key={_id} timeout={500} classNames="fade">
                                 <ListGroupItem>
                                     <Card>
@@ -63,14 +64,10 @@ class HaikuList extends Component {
                                                 >
                                                     <FaThumbsUp />
                                                 </Button>
-                                                /*<Button
-                                                    className="remove-btn"
-                                                    color="danger"
-                                                    onClick={this.onDeleteClick.bind(this, _id)}
-                                                >
-                                                    < FaThumbsDown />
-                                                </Button> */
                                                 : null}
+                                            <span className="ml-3">
+                                                {numberOfLikes} {numberOfLikes === 1 ? 'reader' : 'readers'} liked this
+                                                </span>
                                         </CardBody>
                                     </Card>
                                 </ListGroupItem>

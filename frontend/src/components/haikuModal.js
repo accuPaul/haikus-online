@@ -23,16 +23,15 @@ class HaikuModal extends Component {
         line2: '',
         line3: '',
         author: '',
-        canShare: null,
-        canScramble: null,
+        canScramble: true,
         isScramble: false,
-        access: ''
+        visibleTo: ''
     }
-
 
     static propTypes = {
         isAuthenticated: PropTypes.bool,
-        auth: PropTypes.object.isRequired
+        auth: PropTypes.object.isRequired,
+        error: PropTypes.object.isRequired
     }
 
     toggle = () => {
@@ -41,11 +40,16 @@ class HaikuModal extends Component {
         });
     }
 
+    onHandleCheckboxChange = (e) => {
+        this.setState({ [e.target.name]: e.target.checked });
+    }
+
     onChange = (e) => {
         this.setState({ [e.target.name]: e.target.value })
     }
 
     onSubmit = (e) => {
+        const { error } = this.props;
         e.preventDefault();
         const newHaiku = {
             title: this.state.title.length > 0 ? this.state.title : 'Untitled',
@@ -53,14 +57,21 @@ class HaikuModal extends Component {
             line2: this.state.line2,
             line3: this.state.line3,
             author: this.props.auth.user._id,
-            canShare: this.state.canShare,
             canScramble: this.state.canScramble,
             access: this.state.access
         }
 
         this.props.addHaiku(newHaiku);
 
-        this.toggle();
+        if (error) {
+            if (error.id === 'HAIKU_ERROR') {
+                this.setState({ msg: error.msg.msg });
+            } else { this.setState({ msg: null }); }
+        }
+        else {
+            this.toggle();
+        }
+
     }
     render() {
         return (
@@ -114,10 +125,10 @@ class HaikuModal extends Component {
                                 />
                             </FormGroup>
                             <FormGroup>
-                                <Input type="checkbox" name="canScramble" id="scrambleCheck" />
-                                <Label for="scrambleCheck" check>Allow to scramble?</Label>
+                                <Input type="checkbox" name="canScramble" id="scrambleCheck" onClick={this.onHandleCheckboxChange} />
+                                <Label for="scrambleCheck" check>Allow to scramble?</Label><br />
                                 <Label for="accessLevel">Choose Privacy for this haiku</Label>
-                                <Input type="select" name="access" id="accessLevel">
+                                <Input type="select" name="visibleTo" id="accessLevel">
                                     <option value="public">Public (anyone can see it)</option>
                                     <option value="private">Private (only you can see it</option>
                                     <option value="anonymous">Anonymous (public, but no names are listed)</option>

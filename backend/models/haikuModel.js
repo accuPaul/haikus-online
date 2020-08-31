@@ -13,7 +13,7 @@ const haikuSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  access: {
+  visibleTo: {
     type: String,
     default: "public",
     enum: ["public", "private", "anonymous"],
@@ -52,10 +52,9 @@ const haikuSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
-  numberOfLikes: {
-    type: Number,
-    default: 1,
-  },
+  likers: [{
+    type: Array
+  }],
 });
 
 haikuSchema.statics.getAuthor = function (userId) {
@@ -74,7 +73,6 @@ function validateHaiku(haiku) {
     line2: Joi.string().min(12).max(70).required(),
     line3: Joi.string().min(10).max(50).required(),
     canScramble: Joi.boolean(),
-    canShare: Joi.boolean(),
   });
   return schema.validate(haiku);
 }
