@@ -21,7 +21,7 @@ import LoginModal from './auth/loginModal';
 import Logout from './auth/logout';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import haikuModal from './HaikuModal';
+import HaikuModal from './HaikuModal';
 
 class AppNavbar extends Component {
     state = {
@@ -46,12 +46,12 @@ class AppNavbar extends Component {
                     <DropdownToggle new caret>
                         <strong>{user ? `Welcome ${user.name}` : ''}</strong>
                     </DropdownToggle>
-                    <DropdownMenu right className="ml-auto">
+                    <DropdownMenu right className="ml-auto bg-grey">
                         <DropdownItem>
                             <NavLink href="#">my Haikus</NavLink>
                         </DropdownItem>
                         <DropdownItem>
-                            <haikuModal />
+                            <HaikuModal />
                         </DropdownItem>
                         <DropdownItem divider />
                         <DropdownItem>

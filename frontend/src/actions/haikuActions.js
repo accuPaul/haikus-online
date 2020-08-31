@@ -32,7 +32,7 @@ export const addHaiku = (haiku) => (dispatch, getState) => {
 };
 
 export const upVote = (id) => (dispatch, getState) => {
-    axios.put(`/haikus/like/${id}`, tokenConfig(getState))
+    axios.put(`/haikus/like/${id}`, null, tokenConfig(getState))
         .then(res =>
             dispatch({
                 type: ADD_LIKE,
