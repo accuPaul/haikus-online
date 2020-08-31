@@ -57,12 +57,9 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/", auth, async (req, res) => {
-  console.log('Passed authorization...');
 
   const { error } = validate(req.body);
   if (error) return res.status(401).json({ msg: error.details[0].message });
-
-  console.log('Passed validation...');
 
   let newHaiku = new Haiku({
     title: req.body.title,
