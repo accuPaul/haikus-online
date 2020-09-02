@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Switch, Route, BrowserRouter } from 'react-router-dom';
 import AppNavbar from './components/AppNavbar';
 import HaikuList from './components/HaikuList';
-import HaikuModal from './components/HaikuModal'
 import { Provider } from 'react-redux';
 import { Container, InputGroup } from 'reactstrap';
 import store from './store';
