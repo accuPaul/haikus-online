@@ -1,13 +1,16 @@
 import React, { Component } from 'react';
+import { Switch, Route, BrowserRouter } from 'react-router-dom';
 import AppNavbar from './components/AppNavbar';
 import HaikuList from './components/HaikuList';
 import HaikuModal from './components/HaikuModal'
 import { Provider } from 'react-redux';
-import { Container } from 'reactstrap';
+import { Container, InputGroup } from 'reactstrap';
 import store from './store';
 import { loadUser } from './actions/authActions';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
+import HomeScreen from './components/HomeScreen';
+import ListScreen from './components/ListScreen';
 
 class App extends Component {
 
@@ -17,15 +20,21 @@ class App extends Component {
 
   render() {
     return (
-      <Provider store={store}>
-        <div className="App">
-          <AppNavbar />
-          <Container>
-            <HaikuModal />
-            <HaikuList />
-          </Container>
-        </div>
-      </Provider>
+      <BrowserRouter>
+        <Container fluid>
+          <Provider store={store}>
+            <div className="App">
+              <AppNavbar />
+              <Switch>
+                <Route exact path="/" component={HomeScreen} />
+                <Route path="/list" component={ListScreen} />
+              </Switch>
+            </div>
+          </Provider>
+
+        </Container>
+      </BrowserRouter>
+
     );
   };
 };

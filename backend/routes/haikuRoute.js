@@ -2,12 +2,14 @@ const express = require("express");
 const moment = require("moment");
 const { Haiku, validate } = require("../models/haikuModel");
 const auth = require('../routes/middleware/auth');
+const makeScramble = require('../routes/middleware/makeScramble');
 
 const router = express.Router();
 
-router.get("/today", async (req, res) => {
+router.get("/today", makeScramble, async (req, res) => {
   const dow = "Haiku " + moment().dayOfYear() + "/366";
-  const haiku = await Haiku.find({ title: dow });
+  const today = moment().startOf('day');
+  const haiku = await Haiku.find({ $or: [{ title: dow }, { isScramble: true, dateAdded: { $gte: today } }] });
   if (haiku) {
     res.json(haiku);
   } else {
@@ -15,8 +17,8 @@ router.get("/today", async (req, res) => {
   }
 });
 
-router.get("/recent", auth, async (req, res) => {
-  const haikus = await Haiku.find({ isScramble: false, $or: [{ 'access': 'public' }, { 'access': 'anonymous' }] }).sort({ dateAdded: -1 }).limit(10);
+router.get("/recent", async (req, res) => {
+  const haikus = await Haiku.find({ isScramble: false, $or: [{ 'visibleTo': 'public' }, { 'visibleTo': 'anonymous' }] }).sort({ dateAdded: -1 }).limit(10);
   if (haikus) {
     res.json(haikus);
   } else {
@@ -24,8 +26,8 @@ router.get("/recent", auth, async (req, res) => {
   }
 });
 
-router.get("/popular", auth, async (req, res) => {
-  const haikus = await Haiku.find({ isScramble: false, $or: [{ 'access': 'public' }, { 'access': 'anonymous' }] }).sort({ numberOfLikes: -1 }).limit(10);
+router.get("/popular", async (req, res) => {
+  const haikus = await Haiku.find({ isScramble: false, $or: [{ 'visibleTo': 'public' }, { 'visibleTo': 'anonymous' }] }).sort({ numberOfLikes: -1 }).limit(10);
   if (haikus) {
     res.json(haikus);
   } else {
@@ -38,7 +40,7 @@ router.get("/popular", auth, async (req, res) => {
 // @access private
 
 router.get("/user/:id", auth, async (req, res) => {
-  const haikus = await Haiku.find({}).sort({ dateAdded: -1 }).limit(10);
+  const haikus = await Haiku.find({ author: req.user.id }).sort({ dateAdded: -1 }).limit(10);
   if (haikus) {
     res.json(haikus);
   } else {
@@ -70,8 +72,7 @@ router.post("/", auth, async (req, res) => {
     line3: req.body.line3,
     image: req.body.image,
     canScramble: req.body.canScramble,
-    canShare: req.body.canShare,
-    access: req.body.access,
+    visibleTo: req.body.visibleTo,
     likers: req.user.id
   });
   console.log('Saving new haiku', newHaiku);
@@ -93,9 +94,8 @@ router.put("/:id", auth, async (req, res) => {
       line1: req.body.line1,
       line2: req.body.line2,
       line3: req.body.line3,
-      canShare: req.body.canShare,
       canScramble: req.body.canScramble,
-      access: req.body.acess
+      visibleTo: req.body.visibleTo
     },
     { new: true }
   );

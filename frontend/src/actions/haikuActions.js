@@ -17,6 +17,22 @@ export const getHaikus = () => dispatch => {
         );
 };
 
+export const getHaikuList = (listType) => dispatch => {
+    dispatch(setHaikusLoading());
+    axios
+        .get(`/${listType}`)
+        .then(res =>
+            dispatch({
+                type: GET_HAIKUS,
+                payload: res.data
+            }))
+        .catch(err =>
+            dispatch(returnErrors(err.response.data, err.response.status))
+        );
+};
+
+
+
 export const addHaiku = (haiku) => (dispatch, getState) => {
     axios
         .post('/haikus', haiku, tokenConfig(getState))
