@@ -21,8 +21,6 @@ import LoginModal from './auth/loginModal';
 import Logout from './auth/logout';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import HaikuModal from './HaikuModal';
-import { FaItalic } from 'react-icons/fa';
 
 class AppNavbar extends Component {
     state = {
