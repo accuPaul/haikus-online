@@ -26,7 +26,7 @@ class App extends Component {
               <AppNavbar />
               <Switch>
                 <Route exact path="/" component={HomeScreen} />
-                <Route path="/list" component={ListScreen} />
+                <Route path="/list/:source/:sort" component={ListScreen} />
               </Switch>
             </div>
           </Provider>

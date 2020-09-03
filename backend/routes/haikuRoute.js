@@ -27,7 +27,7 @@ router.get("/recent", async (req, res) => {
 });
 
 router.get("/popular", async (req, res) => {
-  const haikus = await Haiku.find({ isScramble: false, $or: [{ 'visibleTo': 'public' }, { 'visibleTo': 'anonymous' }] }).sort({ numberOfLikes: -1 }).limit(10);
+  const haikus = await Haiku.find({ isScramble: false, $or: [{ 'visibleTo': 'public' }, { 'visibleTo': 'anonymous' }] }).sort({ 'likers': -1 }).limit(10);
   if (haikus) {
     res.json(haikus);
   } else {

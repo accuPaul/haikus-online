@@ -13,10 +13,16 @@ import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
 class ListScreen extends Component {
 
     componentDidMount() {
-        const list = this.props.location.listProps.source;
-        const sort = this.props.location.listProps.sort;
-        console.log("list", this.props.location.listProps);
-        this.props.getHaikuList(`/${list}/${sort}`);
+        let list = 'haikus';
+        let sort = '';
+        if (this.props.location.listProps) {
+            list = this.props.location.listProps.source;
+            sort = this.props.location.listProps.sort;
+            console.log('got this from location');
+        }
+        const path = list + (sort.length > 0 ? `/${sort}` : '');
+        console.log(`Link to pass is ${path}`);
+        this.props.getHaikuList(`${path}`);
     };
 
     static propTypes = {

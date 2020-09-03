@@ -17,10 +17,10 @@ export const getHaikus = () => dispatch => {
         );
 };
 
-export const getHaikuList = (listType) => dispatch => {
+export const getHaikuList = (listType) => (dispatch, getState) => {
     dispatch(setHaikusLoading());
     axios
-        .get(`/${listType}`)
+        .get(`/${listType}`, tokenConfig(getState))
         .then(res =>
             dispatch({
                 type: GET_HAIKUS,

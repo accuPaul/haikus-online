@@ -21,6 +21,7 @@ import LoginModal from './auth/loginModal';
 import Logout from './auth/logout';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 
 class AppNavbar extends Component {
     state = {
@@ -82,41 +83,41 @@ class AppNavbar extends Component {
                                         <DropdownItem divider />
                                         <p className="ml-3">Public Haikus</p>
                                         <DropdownItem>
-                                            <NavLink to={{
-                                                pathname: '/list',
+                                            <Link to={{
+                                                pathname: '/list/haikus/recent',
                                                 listProps: {
                                                     source: 'haikus',
                                                     sort: 'recent'
                                                 }
-                                            }}>Most Recent</NavLink>
+                                            }}>Most Recent</Link>
                                         </DropdownItem>
                                         <DropdownItem>
-                                            <NavLink to={{
-                                                pathname: '/list',
+                                            <Link to={{
+                                                pathname: '/list/haikus/popular',
                                                 listProps: {
                                                     source: 'haikus',
                                                     sort: 'popular'
                                                 }
-                                            }}>Most Popular</NavLink>
+                                            }}>Most Popular</Link>
                                         </DropdownItem>
                                         <p className="ml-3">Scramble-Ku!</p>
                                         <DropdownItem>
-                                            <NavLink to={{
-                                                pathname: '/list',
+                                            <Link to={{
+                                                pathname: '/list/scramble/recent',
                                                 listProps: {
                                                     source: 'scramble',
                                                     sort: 'recent'
                                                 }
-                                            }}>Most Recent</NavLink>
+                                            }}>Most Recent</Link>
                                         </DropdownItem>
                                         <DropdownItem>
-                                            <NavLink to={{
-                                                pathname: '/list',
+                                            <Link to={{
+                                                pathname: '/list/scramble/popular',
                                                 listProps: {
                                                     source: 'scramble',
                                                     sort: 'popular'
                                                 }
-                                            }}>Most Popular</NavLink>
+                                            }}>Most Popular</Link>
                                         </DropdownItem>
                                         <DropdownItem divider />
                                         <DropdownItem>
