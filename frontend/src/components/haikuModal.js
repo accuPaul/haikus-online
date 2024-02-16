@@ -51,6 +51,7 @@ class HaikuModal extends Component {
     onSubmit = (e) => {
         const { error } = this.props;
         e.preventDefault();
+        console.log(`User = ${JSON.stringify(this.props.auth)}`)
         const newHaiku = {
             title: this.state.title.length > 0 ? this.state.title : 'Untitled',
             line1: this.state.line1,

@@ -22,6 +22,7 @@ import Logout from './auth/logout';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
+import HaikuModal from './haikuModal';
 
 class AppNavbar extends Component {
     state = {
@@ -129,6 +130,7 @@ class AppNavbar extends Component {
                         </Collapse>
                     </Container>
                 </Navbar>
+                <HaikuModal />
             </div>
         );
 

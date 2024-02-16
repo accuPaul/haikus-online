@@ -1,28 +1,19 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const haikuRoute = require("./backend/routes/haikuRoute");
-const scrambleRoute = require("./backend/routes/scrambleRoute");
-const authRoute = require("./backend/routes/authRoute");
-const userRoute = require("./backend/routes/userRoute");
-const config = require('config');
+const haikuRoute = require("./routes/haikuRoute");
+const scrambleRoute = require("./routes/scrambleRoute");
+const authRoute = require("./routes/authRoute");
+const userRoute = require("./routes/userRoute");
+const dotenv = require('dotenv').config({path: '../.env'});
 const path = require('path');
+const connectDB = require('./config/db');
+
 const app = express();
+connectDB();
 
 app.use(express.json());
-
+app.use(express.urlencoded({extended: false}))
 // DB connection...
-const db = config.get("mongoURI");
-
-mongoose
-  .connect(db, {
-    useCreateIndex: true,
-    useFindAndModify: true,
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-    useFindAndModify: false
-  })
-  .then(() => console.log(`Connect to Mongo at ${db}`))
-  .catch((err) => console.error("Could not connect to MongoDB: ", err));
 
 const PORT = process.env.PORT || 5000;
 

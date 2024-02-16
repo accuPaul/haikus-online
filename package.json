@@ -2,28 +2,32 @@
   "name": "mern-haikus",
   "version": "1.0.0",
   "description": "",
-  "main": "server.js",
+  "main": "backend/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "client-install": "npm install --prefix frontend",
-    "start": "node server.js",
-    "server": "nodemon server.js",
+    "start": "node backend/server.js",
+    "server": "nodemon backend/server.js",
     "client": "npm start --prefix frontend",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false  npm install --prefix frontend && npm run build --prefix frontend"
-  },
-  "author": "",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+   },
+  "author": "Paul Mount",
   "license": "ISC",
-  "dependencies": {
-    "bcryptjs": "^2.4.3",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mohamedsamara/mern-ecommerce.git"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "mongoose",
+    "react",
+    "redux",
+    "redux-thunk",
+    "webpack"
+  ],
+  "devDependencies": {
     "concurrently": "^5.3.0",
-    "config": "^3.3.1",
-    "express": "^4.17.1",
-    "joi": "^17.2.1",
-    "joi-objectid": "^3.0.1",
-    "jsonwebtoken": "^8.5.1",
-    "moment": "^2.27.0",
-    "mongoose": "^5.10.0",
     "n-readlines": "^1.0.0"
   }
 }

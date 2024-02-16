@@ -108,17 +108,16 @@ router.put("/:id", auth, async (req, res) => {
 
 router.put("/like/:id", auth, async (req, res) => {
 
-  console.log(req.user.id);
-
   const haiku = await Haiku.findByIdAndUpdate(req.params.id,
     {
       $addToSet: { likers: req.user.id }
     },
     { new: true }
   );
-  console.log(`Number of likes: ${haiku.likers.length}`);
-  haiku.numberOfLikes = haiku.likers.length;
+  
   if (haiku) {
+  haiku.numberOfLikes = haiku.likers.length;
+  haiku.save();
     res.status(200).json(haiku);
   } else {
     res.status(404).json({ msg: "Haiku not found" });

@@ -4,7 +4,7 @@ import {
     Card, CardText, CardBody, CardHeader
 } from 'reactstrap';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
+import { FaThumbsUp, FaPlusCircle } from 'react-icons/fa';
 import { connect } from 'react-redux';
 import { getHaikus, deleteHaiku, addHaiku, upVote } from '../actions/haikuActions';
 import PropTypes from 'prop-types';
@@ -29,7 +29,6 @@ class HaikuList extends Component {
     };
 
     onUpVoteClick = _id => {
-        console.log('upvote clicked');
         this.props.upVote(_id);
         window.location.reload();
     }

@@ -9,6 +9,7 @@ import {
     REGISTER_SUCCESS,
     REGISTER_FAIL
 } from "./constants";
+import { Redirect } from 'react-router-dom'
 import { returnErrors } from "./errorActions";
 
 // Check token and load user
@@ -79,8 +80,9 @@ export const login = ({ email, password }) => dispatch => {
 
 export const logout = () => {
     return {
-        type: LOGOUT_SUCCESS
+        type: LOGOUT_SUCCESS,
     }
+    
 };
 
 // Find token and make header

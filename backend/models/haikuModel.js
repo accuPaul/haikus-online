@@ -33,7 +33,7 @@ const haikuSchema = new mongoose.Schema({
   line3: {
     type: String,
     required: true,
-    minlength: 12,
+    minlength: 10,
     maxlength: 70,
   },
   canScramble: {
