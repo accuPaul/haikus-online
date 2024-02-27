@@ -126,8 +126,9 @@ class HaikuModal extends Component {
                                 />
                             </FormGroup>
                             <FormGroup>
+                            <Label for="scrambleCheck" check>Allow to scramble?</Label>
                                 <Input type="checkbox" name="canScramble" id="scrambleCheck" onClick={this.onHandleCheckboxChange} />
-                                <Label for="scrambleCheck" check>Allow to scramble?</Label><br />
+                                <br />
                                 <Label for="accessLevel">Choose Privacy for this haiku</Label>
                                 <Input type="select" name="visibleTo" id="accessLevel">
                                     <option value="public">Public (anyone can see it)</option>
@@ -153,7 +154,8 @@ class HaikuModal extends Component {
 const mapStateToProps = state => ({
     haiku: state.haiku,
     isAuthenticated: state.auth.isAuthenticated,
-    auth: state.auth
+    auth: state.auth,
+    error: state.error
 })
 
 export default connect(mapStateToProps, { addHaiku })(HaikuModal)

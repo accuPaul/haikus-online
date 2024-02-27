@@ -41,7 +41,7 @@ class HomeScreen extends Component {
             <Container>
                 <ListGroup>
                     <TransitionGroup className="haiku-list">
-                        {haikus.map(({ _id, title, line1, line2, line3, likers }) => (
+                        {haikus.map(({ _id, title, line1, line2, line3, likers, authorName }) => (
                             <CSSTransition key={_id} timeout={500} classNames="fade">
                                 <ListGroupItem>
                                     <Card>
@@ -53,7 +53,7 @@ class HomeScreen extends Component {
                                                     {line2}<br />
                                                     {line3}
                                                     <footer className="blockquote-footer text-right">
-                                                        <cite>anonymous</cite>
+                                                        <cite>{authorName?authorName:'anonymous'}</cite>
                                                     </footer>
                                                 </blockquote>
                                             </CardText>

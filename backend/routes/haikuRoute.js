@@ -1,17 +1,22 @@
 const express = require("express");
 const moment = require("moment");
 const { Haiku, validate } = require("../models/haikuModel");
+const { User } = require("../models/userModel");
 const auth = require('../routes/middleware/auth');
 const makeScramble = require('../routes/middleware/makeScramble');
+const { ObjectId } = require('mongodb')
 
 const router = express.Router();
 
 router.get("/today", makeScramble, async (req, res) => {
   const dow = "Haiku " + moment().dayOfYear() + "/366";
   const today = moment().startOf('day');
-  const haiku = await Haiku.find({ $or: [{ title: dow }, { isScramble: true, dateAdded: { $gte: today } }] });
-  if (haiku) {
-    res.json(haiku);
+  const haikus = await Haiku.find({ $or: [{ title: dow }, { isScramble: true, dateAdded: { $gte: today } }] });
+  if (haikus) {
+    for (let haiku of haikus) {
+      haiku.authorName = await getAuthorName(haiku, req.user?req.user.id:null)
+    } 
+    res.json(haikus);
   } else {
     res.status(500).json({ msg: "Error retrieving haikus from DB." });
   }
@@ -20,6 +25,9 @@ router.get("/today", makeScramble, async (req, res) => {
 router.get("/recent", async (req, res) => {
   const haikus = await Haiku.find({ isScramble: false, $or: [{ 'visibleTo': 'public' }, { 'visibleTo': 'anonymous' }] }).sort({ dateAdded: -1 }).limit(10);
   if (haikus) {
+    for (let haiku of haikus) {
+      haiku.authorName = await getAuthorName(haiku, req.user?req.user.id:null)
+    } 
     res.json(haikus);
   } else {
     res.status(500).json({ msg: "Error retrieving haikus from DB." });
@@ -29,6 +37,9 @@ router.get("/recent", async (req, res) => {
 router.get("/popular", async (req, res) => {
   const haikus = await Haiku.find({ isScramble: false, $or: [{ 'visibleTo': 'public' }, { 'visibleTo': 'anonymous' }] }).sort({ 'likers': -1 }).limit(10);
   if (haikus) {
+    for (let haiku of haikus) {
+      haiku.authorName = await getAuthorName(haiku, req.user?req.user.id:null)
+    } 
     res.json(haikus);
   } else {
     res.status(500).json({ msg: "Error retrieving haikus from DB." });
@@ -40,8 +51,12 @@ router.get("/popular", async (req, res) => {
 // @access private
 
 router.get("/user/:id", auth, async (req, res) => {
-  const haikus = await Haiku.find({ author: req.user.id }).sort({ dateAdded: -1 }).limit(10);
+  console.log(`Fetching haikus for user ${req.params.id}`)
+  const haikus = await Haiku.find({ author: req.params.id }).sort({ dateAdded: -1 }).limit(10);
   if (haikus) {
+    for (let haiku of haikus) {
+      haiku.authorName = await getAuthorName(haiku, req.user?req.user.id:null)
+    } 
     res.json(haikus);
   } else {
     res.status(500).json({ msg: "Error retrieving haikus from DB." });
@@ -52,6 +67,7 @@ router.get("/:id", async (req, res) => {
   const haikuId = req.params.id;
   const haiku = await Haiku.findById(haikuId);
   if (haiku) {
+    haiku.authorName = await getAuthorName(haiku, req.user?req.user.id:null)
     res.status(200).json(haiku);
   } else {
     res.status(404).json({ msg: "Haiku not found" });
@@ -116,8 +132,9 @@ router.put("/like/:id", auth, async (req, res) => {
   );
   
   if (haiku) {
-  haiku.numberOfLikes = haiku.likers.length;
-  haiku.save();
+    if (haiku.likers == null) haiku.likers = [ObjectId.createFromHexString(req.user.id)]
+    haiku.numberOfLikes = haiku.likers?.length | 0;
+    haiku.save();
     res.status(200).json(haiku);
   } else {
     res.status(404).json({ msg: "Haiku not found" });
@@ -133,5 +150,13 @@ router.delete("/:id", auth, async (req, res) => {
     res.status(404).json({ msg: 'Haiku not found' });
   }
 });
+
+async function getAuthorName(haiku, userId) {
+  if (haiku.visibleTo === 'public' || (haiku.visibleTo === 'private' && haiku.author === userId)) {
+    const user = await User.findById(haiku.author);
+    if (user) return user.name
+  }
+  return null;
+};
 
 module.exports = router;

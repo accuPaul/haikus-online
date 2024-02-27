@@ -9,7 +9,6 @@ import {
     REGISTER_SUCCESS,
     REGISTER_FAIL
 } from "./constants";
-import { Redirect } from 'react-router-dom'
 import { returnErrors } from "./errorActions";
 
 // Check token and load user
@@ -54,7 +53,7 @@ export const register = ({ name, email, password }) => dispatch => {
 
 // Log in existing user...
 
-export const login = ({ email, password }) => dispatch => {
+export const login = ({ email, password }) => async dispatch => {
     const config = {
         headers: {
             'Content-Type': 'application/json'
@@ -63,26 +62,31 @@ export const login = ({ email, password }) => dispatch => {
 
     const body = JSON.stringify({ email, password });
 
-    axios.post('/auth', body, config)
-        .then(res => dispatch({
+    try {
+        const response = await axios.post('/auth', body, config);
+        
+        dispatch({
             type: LOGIN_SUCCESS,
-            payload: res.data
-        }))
-        .catch(error => {
-            dispatch(returnErrors(error.response.data, error.response.status, 'LOGIN_FAIL'));
-            dispatch({
-                type: LOGIN_FAIL
-            });
+            payload: response.data
+        })
+
+    } catch(error) {
+        dispatch(returnErrors(error.response?.data?.msg, error.response.status, 'LOGIN_FAIL'));
+        dispatch({
+            type: LOGIN_FAIL,
+            error: { msg: error.response?.data?.msg }
         });
+    }
+    
 };
 
 // Log out user
 
-export const logout = () => {
-    return {
+export const logout = () => dispatch => {
+    dispatch ({
         type: LOGOUT_SUCCESS,
-    }
-    
+    })
+
 };
 
 // Find token and make header

@@ -35,7 +35,7 @@ async function makeScramble(pareq, res, next) {
                 canScramble: false,                  // No point making this scramble-eligible, that would be redundant
                 isScramble: true,
                 visibleTo: "public",
-                likers: ''                          // No one likes a Scramble-ku initially
+                // No one likes a Scramble-ku initially
             });
             scrambleKu = await scrambleKu.save();
         }

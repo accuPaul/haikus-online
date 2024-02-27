@@ -13,6 +13,9 @@ const haikuSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
+  authorName: {
+    type: String,
+  },
   visibleTo: {
     type: String,
     default: "public",
@@ -52,8 +55,12 @@ const haikuSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  numberOfLikes: {
+    type: Number,
+    default: 0
+  },
   likers: [{
-    type: Array
+    type: mongoose.Schema.Types.ObjectId
   }],
 });
 

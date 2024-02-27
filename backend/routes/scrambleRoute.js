@@ -14,8 +14,10 @@ router.get("/", makeScramble, async (req, res) => {
     // First, see if a Scramble-ku has been created today...
     const today = moment().startOf('day');
     let haiku = await Haiku.findOne({ isScramble: true, dateAdded: { $gte: today } });
-    if (haiku)
+    if (haiku) {
+        haiku.authorName = 'ScrambleBot!'
         return res.json(haiku);
+    }
     else
         res.status(500).json({ msg: "Error retrieving haikus from DB." });
 
@@ -26,8 +28,11 @@ router.get("/", makeScramble, async (req, res) => {
 // @access: public
 
 router.get('/popular', auth, async (req, res) => {
-    const haikus = Haikus.find({ isScramble: true }).sort({ numberOfLikes: -1 }).limit(10);
+    const haikus = await Haiku.find({ isScramble: true }).sort({ numberOfLikes: -1 }).limit(10);
     if (haikus) {
+        for (let haiku of haikus) { 
+            haiku.authorName = 'ScrambleBot!'
+         }
         res.json(haikus);
     } else {
         res.status(500).json({ msg: "Error retrieving haikus from DB." });
@@ -40,6 +45,7 @@ router.get('/popular', auth, async (req, res) => {
 router.get("/recent", auth, makeScramble, async (req, res) => {
     const haikus = await Haiku.find({ isScramble: true }).sort({ dateAdded: -1 }).limit(10);
     if (haikus) {
+        for (let haiku of haikus) { haiku.authorName = 'ScrambleBot!' }
         res.json(haikus);
     } else {
         res.status(500).json({ msg: "Error retrieving haikus from DB." });

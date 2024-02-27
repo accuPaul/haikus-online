@@ -15,6 +15,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { login } from '../../actions/authActions';
 import { clearErrors } from "../../actions/errorActions";
+import RegisterModal from './registerModal';
 
 
 class LoginModal extends Component {
@@ -36,7 +37,7 @@ class LoginModal extends Component {
         const { error, isAuthenticated } = this.props;
         if (error !== prevProps.error) {
             if (error.id === 'LOGIN_FAIL') {
-                this.setState({ msg: error.msg.msg });
+                this.setState({ msg: error.msg });
             } else { this.setState({ msg: null }); }
         }
 
@@ -95,6 +96,7 @@ class LoginModal extends Component {
                                     placeholder="someone@somewhere.org"
                                     className="mb-3"
                                     onChange={this.onChange}
+                                    required
                                 />
                                 <Label for="password">Password</Label>
                                 <Input
@@ -104,16 +106,22 @@ class LoginModal extends Component {
                                     placeholder="8-20 characters"
                                     className="mb-3"
                                     onChange={this.onChange}
+                                    required
                                 />
                                 <Button
-                                    color="dark"
-                                    style={{ marginTop: '2rem' }}
-                                    block>
+                                    type='submit'
+                                    className="btn btn-block">
                                     Log In
                                 </Button>
 
                             </FormGroup>
                         </Form>
+                        <p>
+                        Not registered?<br />
+                        <span className="line">
+                            <RegisterModal />
+                        </span>
+                    </p>
                     </ModalBody>
                 </Modal>
             </div>

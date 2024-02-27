@@ -19,6 +19,13 @@ router.get("/user", auth, async (req, res) => {
     }
 });
 
+router.get("/refresh", auth, async(req, res) => {
+    const user = await User.findById(req.user.id)
+    if (user) {
+        res.json(user.generateAuthToken())
+    } else return res.status(401).json({ msg: 'invalid user or password' });
+})
+
 router.post("/", async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ msg: 'Please enter all fields' });

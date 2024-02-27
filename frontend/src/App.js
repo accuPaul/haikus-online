@@ -1,41 +1,45 @@
-import React, { Component } from 'react';
-import { Switch, Route, BrowserRouter } from 'react-router-dom';
-import AppNavbar from './components/AppNavbar';
-import HaikuList from './components/HaikuList';
-import { Provider } from 'react-redux';
-import { Container, InputGroup } from 'reactstrap';
-import store from './store';
-import { loadUser } from './actions/authActions';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { Routes, Route } from 'react-router-dom';
+import Header from './components/Header';
+import Navigation from "./components/Navigation"
+import HaikuList from './pages/HaikuList';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import Unauthorized from './pages/Unauthorized';
+import RequireAuth  from './components/RequireAuth'
+import PersistLogin from './components/auth/PersistLogin';
+import Layout from './components/Layout';
+import { Container } from 'react-bootstrap';
 import './App.css';
-import HomeScreen from './components/HomeScreen';
-import ListScreen from './components/ListScreen';
+import Users from './pages/Users';
 
-class App extends Component {
 
-  componentDidMount() {
-    store.dispatch(loadUser());
-  };
-
-  render() {
-    return (
-      <BrowserRouter>
+function App() {
+ return (
         <Container fluid>
-          <Provider store={store}>
-            <div className="App">
-              <AppNavbar />
-              <Switch>
-                <Route exact path="/" component={HomeScreen} />
-                <Route path="/list/:source/:sort" component={ListScreen} />
-              </Switch>
-            </div>
-          </Provider>
+              <Header />
+              <Navigation />
+              <Routes>
+                  <Route path="/" element={<Layout />}>
+                        {/* public */}
+              <Route path='/login' element={<Login />} />
+              <Route path='/register' element={<Register />} />
+              <Route path='/unauthorized' element={<Unauthorized />} />
+              {/* <Route path="/" element={<HaikuList />} /> */}
+              <Route element={<PersistLogin />}>
+                  <Route path='/' element={<HaikuList />} />
+                  <Route path="/:source/:sort" element={<HaikuList />} />
 
+                                {/* private */}
+
+                  <Route element={<RequireAuth adminOnly={true} />}>
+                        <Route path="/users" element={<Users />} />
+          </Route>
+              </Route>
+            
+                  </Route>
+              </Routes>
         </Container>
-      </BrowserRouter>
-
-    );
-  };
-};
+  );
+}
 
 export default App;

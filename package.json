@@ -10,7 +10,7 @@
     "server": "nodemon backend/server.js",
     "client": "npm start --prefix frontend",
     "dev": "concurrently \"npm run server\" \"npm run client\""
-   },
+  },
   "author": "Paul Mount",
   "license": "ISC",
   "repository": {
@@ -29,5 +29,8 @@
   "devDependencies": {
     "concurrently": "^5.3.0",
     "n-readlines": "^1.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.6.7"
   }
 }

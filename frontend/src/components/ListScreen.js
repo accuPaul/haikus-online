@@ -6,20 +6,21 @@ import PropTypes from 'prop-types';
 import {
     Container, ListGroup, ListGroupItem, Button,
     Card, CardText, CardBody, CardHeader
-} from 'reactstrap';
+} from 'react-bootstrap';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
-import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
+import { FaThumbsUp } from 'react-icons/fa';
 
 class ListScreen extends Component {
 
     componentDidMount() {
         let list = 'haikus';
         let sort = '';
+        console.log(`props = ${JSON.stringify(this.props)}`)
         if (this.props.location.listProps) {
             list = this.props.location.listProps.source;
             sort = this.props.location.listProps.sort;
             console.log('got this from location');
-        }
+        } else sort = 'today'
         const path = list + (sort.length > 0 ? `/${sort}` : '');
         console.log(`Link to pass is ${path}`);
         this.props.getHaikuList(`${path}`);
@@ -46,11 +47,11 @@ class ListScreen extends Component {
 
     render() {
         const { haikus } = this.props.haiku;
-        return (
+       return (
             <Container>
                 <ListGroup>
                     <TransitionGroup className="haiku-list">
-                        {haikus.map(({ _id, title, line1, line2, line3, likers }) => (
+                        {haikus.map(({ _id, title, line1, line2, line3, likers, authorName }) => (
                             <CSSTransition key={_id} timeout={500} classNames="fade">
                                 <ListGroupItem>
                                     <Card>
@@ -62,7 +63,7 @@ class ListScreen extends Component {
                                                     {line2}<br />
                                                     {line3}
                                                     <footer className="blockquote-footer text-right">
-                                                        <cite>anonymous</cite>
+                                                        <cite>{authorName?authorName:'anonymous'}</cite>
                                                     </footer>
                                                 </blockquote>
                                             </CardText>
