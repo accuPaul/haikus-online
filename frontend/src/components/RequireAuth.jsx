@@ -1,8 +1,9 @@
 import { useLocation, Navigate, Outlet } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+import { loadSession } from "./loadSession";
 
 const RequireAuth = (adminOnly) => {
-    const { auth } = useAuth();
+    const { auth } = useAuth(() => loadSession('user'));
     const location = useLocation();
 
     return (

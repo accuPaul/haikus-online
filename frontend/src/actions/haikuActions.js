@@ -1,68 +1,66 @@
-import { GET_HAIKUS, ADD_HAIKU, DELETE_HAIKU, HAIKUS_LOADING, ADD_LIKE, HAIKU_ERROR, BASE_URL } from './constants';
+import {  HAIKUS_LOADING, BASE_URL } from './constants';
 import axios from 'axios';
-import useAxiosPrivate from '../hooks/useAxiosPrivate';
-import { useState, useEffect } from 'react'
-import { tokenConfig } from './authActions';
-import { returnErrors } from './errorActions';
-import useAuth from '../hooks/useAuth'
 import { makeHeaders } from '../components/makeHeaders';
+import { loadSession } from '../components/loadSession';
 
-export function useGetHaikus() {
-    const setHaikuList = useState();
-    const setErrorMessage = useState();
-    const axios = useAxiosPrivate();
 
-    useEffect(() => {
-        const getList = async () => {
-            try {
-                const response = await axios.get('/haikus/today');
+export async function getHaikuList(params, page, pageSize, sortField, sortDir) {
+    console.log(`params = ${JSON.stringify(params)}\npage=${JSON.stringify(page)}`)
+    const controller = new AbortController();
+    axios.create({
+        baseURL: BASE_URL,
+        withCredentials: true
+    });
+    const savedUser = loadSession('user')
 
-                setHaikuList(response.data)
-                
-                .catch(err =>
-                    setErrorMessage(err.response?.data?.message)
-                );
-            } catch (err) {
-                setErrorMessage(err.response.data)
-            }
-        }
+    let path = params.source? params.source : 'haikus'
+    if (params.sort == null) 
+        path = path + "/today"
+    else if (params.source === 'myHaikus') {
+        path = "haikus/user/"+savedUser?.id
+    } else {
+        path = path + "/" + params.sort
+    }
 
-        getList();
-    }, [])
+    if (page) path = path + `?page=${page}`
+    if (pageSize) path = path + `?pageSize=${pageSize}`
+    if (sortField) path = path + `?sortBy=${sortField}`
+    if (sortDir) path = path + `?sortDir=${sortDir}`
 
-    
-};
+    console.log(`path = ${path}`)
 
-export const getHaikuList = (listType) => async () => {
-    const axios = useAxiosPrivate();
-    const auth = useAuth();
-    if (listType?.includes('user')) listType += auth.id
-    axios
-        .get(`/${listType}`)
-        .then(res => { return res.data})
-        .catch(err =>
-            { throw(err) }
-        );
+    return axios.get(`/${path}`, makeHeaders(), {
+        signal: controller.signal,
+    })
 };
 
 
 
-export const addHaiku = (haiku) => (dispatch, getState) => {
-    const axios = useAxiosPrivate();
-    axios
-        .post('/haikus', haiku, tokenConfig(getState))
-        .then(res => dispatch({
-            type: ADD_HAIKU,
-            payload: res.data
+export async function editHaiku (haikuId, haiku) {
+    const controller = new AbortController();
+    axios.create({
+        baseURL: BASE_URL,
+        withCredentials: true
+    });
+
+    console.log(`New Haiku = ${JSON.stringify(haiku)}`)
+    return axios.put(`/haikus/${haikuId}`, haiku, makeHeaders(), {
+            signal: controller.signal,
         })
-        )
-        .catch(err =>
-            dispatch(returnErrors(err.response.data, err.response.status)),
-            dispatch({
-                type: HAIKU_ERROR
-            })
-        );
+        
+};
 
+export async function addHaiku (haiku) {
+    const controller = new AbortController();
+    axios.create({
+        baseURL: BASE_URL,
+        withCredentials: true
+    });
+    
+    return axios.post('/haikus', haiku, makeHeaders(), {
+            signal: controller.signal,
+        })
+        
 };
 
 export async function upVote(id) {
@@ -84,7 +82,6 @@ export async function deleteHaiku(id) {
         withCredentials: true
     });
     
-    console.log(`Calling like endpoint ${JSON.stringify(axios)}`)
     return axios.delete(`/haikus/${id}`, makeHeaders(), {
         signal: controller.signal,
     })

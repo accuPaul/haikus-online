@@ -7,7 +7,8 @@ import {
     LOGIN_FAIL,
     LOGOUT_SUCCESS,
     REGISTER_SUCCESS,
-    REGISTER_FAIL
+    REGISTER_FAIL,
+    BASE_URL
 } from "./constants";
 import { returnErrors } from "./errorActions";
 
@@ -29,7 +30,14 @@ export const loadUser = () => (dispatch, getState) => {
 };
 
 // Register new user
-export const register = ({ name, email, password }) => dispatch => {
+export async function register({ name, email, password }) {
+    const controller = new AbortController();
+
+    axios.create({
+        baseURL: BASE_URL,
+        withCredentials: true
+    });
+
     const config = {
         headers: {
             'Content-Type': 'application/json'
@@ -38,17 +46,9 @@ export const register = ({ name, email, password }) => dispatch => {
 
     const body = JSON.stringify({ name, email, password });
 
-    axios.post('/users', body, config)
-        .then(res => dispatch({
-            type: REGISTER_SUCCESS,
-            payload: res.data
-        }))
-        .catch(error => {
-            dispatch(returnErrors(error.response.data, error.response.status, 'REGISTER_FAIL'));
-            dispatch({
-                type: REGISTER_FAIL
-            });
-        });
+    return axios.post('/users', body, config, {
+        signal: controller.signal,
+    })
 };
 
 // Log in existing user...

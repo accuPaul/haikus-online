@@ -3,10 +3,10 @@ import useAuth from "./useAuth";
 import { loadSession } from "../components/loadSession";
 
 const useRefreshToken = () => {
-    const { setAuth } = useAuth();
+    const { auth, setAuth } = useAuth(() => loadSession('user'));
 
     const refresh = async () => {
-        const savedUser = loadSession('user')
+        const savedUser = auth?.token ? auth : loadSession('user')
         const config = {
             headers: {
                 "Content-type": "application/json"

@@ -2,7 +2,6 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 
 function DeleteModal({ title, onDialog }) {
-    console.log(`title = ${title}\t onDialog = ${onDialog}`)
   return (
       <Modal 
         show={title?.length} 

@@ -4,6 +4,7 @@ import useAuth from "../hooks/useAuth"
 import axios from "axios";
 import { FaSignInAlt } from "react-icons/fa";
 import Form from 'react-bootstrap/Form'
+import Card from 'react-bootstrap/Card'
 
 function Login() {
     const { setAuth, persist, setPersist } = useAuth(); 
@@ -72,15 +73,13 @@ function Login() {
     }, [persist])
 
     return <>
-    <section className="heading text-center">
-    <p ref={errRef} className={errMsg ? "errmsg" : "offscreen" } 
-        aria-live="assertive">{errMsg}</p>
-        <h1>
-            <FaSignInAlt /> Please Log In
-        </h1>
-    </section>
-    
-    <section className="form">
+    <section className="heading text-center" style={{ width: '30rem'}}>
+      <Card>
+        <Card.Header as="h1">
+          <FaSignInAlt /> Please Log In
+        </Card.Header>
+        <Card.Body>
+        <section className="form">
         <form onSubmit={onSubmit}>
             <div className='form-group'>
             <input
@@ -118,17 +117,24 @@ function Login() {
            type="switch"
            id="persist-switch"
            label="Trust this device"
+           className="fs-5"
            onChange={togglePersist} 
            checked={persist} />
         </form>
+        </section>
 
-        <p>
-                        Not registered?<br />
-                        <span className="line">
-                            <Link to="/Register">Register Now!</Link>
-                        </span>
-                    </p>
-      
+        <p className="fs-6">
+          Not registered?{' '}
+          <span className="line">
+              <Link to="/Register">Register Now!</Link>
+          </span>
+        </p>
+    
+        </Card.Body>
+        <Card.Footer ref={errRef} className={errMsg ? "errmsg" : "offscreen" } >
+          {errMsg}
+        </Card.Footer>
+      </Card>
     </section>
     </>
 }

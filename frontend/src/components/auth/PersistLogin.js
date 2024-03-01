@@ -2,11 +2,12 @@ import { Outlet } from "react-router-dom";
 import { useState, useEffect } from 'react';
 import useAuth from "../../hooks/useAuth";
 import useRefreshToken from "../../hooks/useRefreshToken";
+import { loadSession } from "../loadSession";
 
 const PersistLogin = () => {
     const [isLoading, setIsLoading] = useState(true)
     const refresh = useRefreshToken();
-    const { auth, persist } = useAuth();
+    const { auth, persist } = useAuth(() => loadSession('user'));
 
     useEffect(() => {
         let isMounted = true;
@@ -24,11 +25,6 @@ const PersistLogin = () => {
 
         return () => isMounted = false;
     }, [])
-
-    useEffect(() => {
-        console.log(`isLoading: ${isLoading}`)
-        console.log(`token ${JSON.stringify(auth?.token)}`)
-    }, [isLoading])
 
     return (
         <>

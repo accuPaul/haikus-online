@@ -5,9 +5,10 @@ import NavLink from 'react-bootstrap/NavLink';
 import useAuth from '../hooks/useAuth'
 import { FaUser,FaUsers } from 'react-icons/fa';
 import { useState } from 'react';
+import { loadSession } from './loadSession';
 
 const Navigation = () => {
-    const { auth } = useAuth();
+    const { auth } = useAuth(() => loadSession('user'));
     const [active, setActive] = useState('today');
 
     return(

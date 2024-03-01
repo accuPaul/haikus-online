@@ -2,11 +2,12 @@ import { useRef, useState, useEffect} from "react";
 import { FaUser, FaCheck, FaTimes, FaInfoCircle } from "react-icons/fa";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-import axios from "../api/axios";
+import Card from 'react-bootstrap/Card'
+import { register } from "../actions/authActions";
 
 const NAME_REGEX = /^(?![\s.]+$)[a-zA-Z\s.]*.{4,30}$/;
 const USER_REGEX = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z]).{8,24}$/;
+const PWD_REGEX = /^(?=.*[a-z0-9._-])(?=.*[A-Z]).{8,24}$/;
 
 function Register() {
   const { setAuth } = useAuth(); 
@@ -67,14 +68,8 @@ function Register() {
             return;
           }
 
-          const response = await axios.post('/users/',
-                JSON.stringify({ 'name': name, 'email': user, 'password': pwd, 'isAdmin': false}),
-                {
-                  headers: { 'Content-Type': 'application/json' },
-                  withCredentials: true
-                }
-          );
-         
+          const response = await register({ 'name': name, 'email': user, 'password': pwd})
+          
           setAuth({ ...response.data})
           window.sessionStorage.setItem('user', JSON.stringify(...response.data))
             setName('');
@@ -94,23 +89,26 @@ function Register() {
     }
 
     return <>
-    <section className="heading">
-        <h1>
-            <FaUser /> Register
-        </h1>
-        <p>Please create an account</p>
-    </section>
-    
-    <section className="form">
+    <section className="heading text-center">
+      <Card>
+        <Card.Header>
+          <FaUser /> Register
+        </Card.Header>
+        <Card.Body>
+          <Card.Title>
+            Please create an account
+          </Card.Title>
+          <section className="form">
     <p ref={errRef} className={errMsg ? "errmsg" : "offscreen" } 
         aria-live="assertive">{errMsg}</p>
         <form onSubmit={onSubmit}>
+        <div className="form-group form-control">
           <label htmlFor="displayname">
             Display Name:
             <FaCheck className={validName ? "valid" : "hide"} />
             <FaTimes className={validName || !name ? "hide" : "invalid"} />
           </label>
-            <div className="form-group">
+
                 <input 
                 type='text'
                 className="form-control"
@@ -120,7 +118,7 @@ function Register() {
                 autoComplete="off"
                 onChange={(e) => setName(e.target.value)}
                 required
-                placeholder="What should we call you?"
+                placeholder="This is the name attribution for your public haikus"
                 aria-invalid={validName ? "false" : "true"}
                             aria-describedby="uidnote"
                             onFocus={() => setNameFocus(true)}
@@ -133,9 +131,9 @@ function Register() {
                             Letters, periods, and spaces allowed.
                   </p>
             </div>
-            <div className='form-group'>
+            <div className='form-group form-control'>
             <label htmlFor="email">
-                Email (this is your username):
+                Email (use this to log in):
                             <FaCheck className={validUser ? "valid" : "hide"} />
                             <FaTimes className={validUser || !user ? "hide" : "invalid"} />
             </label>
@@ -146,6 +144,7 @@ function Register() {
               value={user}
               onChange={(e) => setUser(e.target.value)}
               required
+              placeholder="someone@somedomain.xxx"
               aria-invalid={validName ? "false" : "true"}
                             aria-describedby="uidnote"
                             onFocus={() => setUserFocus(true)}
@@ -156,7 +155,7 @@ function Register() {
                             A valid-looking email address
                         </p>
           </div>
-          <div className='form-group'>
+          <div className='form-group form-control'>
           <label htmlFor="password">
                             Password:
                             <FaCheck className={validPwd ? "valid" : "hide"} />
@@ -179,7 +178,7 @@ function Register() {
                             Must include uppercase and lowercase letters, and a number. 
                             </p>
           </div>
-          <div className='form-group'>
+          <div className='form-group form-control'>
           <label htmlFor="confirm_pwd">
                             Confirm Password:
                             <FaCheck className={validMatch && matchPwd ? "valid" : "hide"} />
@@ -207,13 +206,15 @@ function Register() {
             </button>
           </div>
         </form>
-        <p>
+        <p className="fs-6">
                         Already registered?<br />
                         <span className="line">
                             <Link to="/Login">Sign In</Link>
                         </span>
                     </p>
-        
+        </section>
+        </Card.Body>
+      </Card>
     </section>
     </>
 }

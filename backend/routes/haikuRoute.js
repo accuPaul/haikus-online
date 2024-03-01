@@ -9,6 +9,7 @@ const { ObjectId } = require('mongodb')
 const router = express.Router();
 
 router.get("/today", makeScramble, async (req, res) => {
+
   const dow = "Haiku " + moment().dayOfYear() + "/366";
   const today = moment().startOf('day');
   const haikus = await Haiku.find({ $or: [{ title: dow }, { isScramble: true, dateAdded: { $gte: today } }] });
@@ -16,49 +17,158 @@ router.get("/today", makeScramble, async (req, res) => {
     for (let haiku of haikus) {
       haiku.authorName = await getAuthorName(haiku, req.user?req.user.id:null)
     } 
-    res.json(haikus);
+    res.json({
+      haikus: {
+        metadata: { totalCount: haikus.length },
+        data: haikus
+      }
+    });
   } else {
     res.status(500).json({ msg: "Error retrieving haikus from DB." });
   }
 });
 
 router.get("/recent", async (req, res) => {
-  const haikus = await Haiku.find({ isScramble: false, $or: [{ 'visibleTo': 'public' }, { 'visibleTo': 'anonymous' }] }).sort({ dateAdded: -1 }).limit(10);
-  if (haikus) {
-    for (let haiku of haikus) {
+  let { page, pageSize } = req.query;
+
+  try {
+    page = parseInt(page, 10) || 1;
+    pageSize = parseInt(pageSize, 10) || 10;
+    const haikus = await Haiku.aggregate([
+    {
+      $facet: {
+        metadata: [
+          { $match: {isScramble: false, $or: [{ 'visibleTo': 'public' }, { 'visibleTo': 'anonymous' }]} },
+          { $count: 'totalCount'}
+        ],
+        data: [
+          { $match: {isScramble: false, $or: [{ 'visibleTo': 'public' }, { 'visibleTo': 'anonymous' }]} },
+          { $addFields: 
+            {"nLikes" : {$size : "$likers"}} 
+          },
+          { $sort : { dateAdded : -1, _id: 1}},
+          { $skip: ( page-1) * pageSize},
+          {$limit: pageSize}
+      ]
+      }
+    }
+    ])
+  
+    for (let haiku of haikus[0].data) {
       haiku.authorName = await getAuthorName(haiku, req.user?req.user.id:null)
-    } 
-    res.json(haikus);
-  } else {
+    }
+    return res.status(200).json({
+      haikus: {
+        metadata: { totalCount: haikus[0].metadata[0].totalCount, page, pageSize},
+        data: haikus[0].data
+      }
+    })
+    
+  } catch (error) {
+    console.error(`Error is ${error}`)
     res.status(500).json({ msg: "Error retrieving haikus from DB." });
   }
 });
 
 router.get("/popular", async (req, res) => {
-  const haikus = await Haiku.find({ isScramble: false, $or: [{ 'visibleTo': 'public' }, { 'visibleTo': 'anonymous' }] }).sort({ 'likers': -1 }).limit(10);
-  if (haikus) {
-    for (let haiku of haikus) {
+  let { page, pageSize } = req.query;
+
+  try {
+    page = parseInt(page, 10) || 1;
+    pageSize = parseInt(pageSize, 10) || 10;
+    const haikus = await Haiku.aggregate([
+    {
+      $facet: {
+        metadata: [
+          { $match: {isScramble: false, $or: [{ 'visibleTo': 'public' }, { 'visibleTo': 'anonymous' }]} },
+          { $count: 'totalCount'}],
+        data: [
+          { $match: {isScramble: false, $or: [{ 'visibleTo': 'public' }, { 'visibleTo': 'anonymous' }]} },
+          { $addFields: 
+            {"nLikes" : {$size : "$likers"}} 
+          },
+          { $sort : { nLikes : -1, _id: 1}},
+          { $skip: ( page-1) * pageSize},
+          {$limit: pageSize}
+      ]
+      }
+    }
+    ])
+  
+    for (let haiku of haikus[0].data) {
       haiku.authorName = await getAuthorName(haiku, req.user?req.user.id:null)
-    } 
-    res.json(haikus);
-  } else {
+    }
+    return res.status(200).json({
+      haikus: {
+        metadata: { totalCount: haikus[0].metadata[0].totalCount, page, pageSize},
+        data: haikus[0].data
+      }
+    })
+    
+  } catch (error) {
+    console.error(`Error is ${error}`)
     res.status(500).json({ msg: "Error retrieving haikus from DB." });
   }
+  
 });
 
-// @path GET /haikus/user/userID
+// @path GET /haikus/user/userID?sortBy=dateAdded?sortDir=[-1,1]?page=1?pageSize=10
+// @optional parameters: 
+//      ?sortBy == field by which to sort (default is dateAdded)
+//      ?sortDir == -1 for descending, 1 for ascending (default is ascending unless the sort field is dateAdded)
+//      ?page == page # of results
+//      ?pagesize == number of elements to return
 // @action  returns all haikus by that user
 // @access private
 
 router.get("/user/:id", auth, async (req, res) => {
-  console.log(`Fetching haikus for user ${req.params.id}`)
-  const haikus = await Haiku.find({ author: req.params.id }).sort({ dateAdded: -1 }).limit(10);
-  if (haikus) {
-    for (let haiku of haikus) {
+  let { sortBy, sortDir, page, pageSize} = req.query
+  const userId = ObjectId.createFromHexString(req.params.id)
+
+  try {
+    page = parseInt(page, 10) || 1;
+    pageSize = parseInt(pageSize, 10) || 10;
+    sortBy = sortBy || 'dateAdded';
+    sortDir = parseInt(sortDir,10) || sortBy === 'dateAdded' ? -1 : 1;
+    const sort = {}
+   //   sortBy : sortDir,
+   //   '_id' : 1
+   // };
+    sort[sortBy] = sortDir
+  
+    const haikus = await Haiku.aggregate([
+    {
+      $facet: {
+        metadata: [
+          {  $match: { author: userId }},
+          { $count: 'totalCount'}
+        ],
+        data: [
+          {  $match: { author: userId }
+          },
+          { $addFields: 
+            {"nLikes" : {$size : "$likers"}} 
+          },
+          { $sort : sort},
+          { $skip: ( page-1) * pageSize},
+          {$limit: pageSize}
+      ]
+      }
+    }
+    ])
+  
+    for (let haiku of haikus[0].data) {
       haiku.authorName = await getAuthorName(haiku, req.user?req.user.id:null)
-    } 
-    res.json(haikus);
-  } else {
+    }
+    return res.status(200).json({
+      haikus: {
+        metadata: { totalCount: haikus[0].metadata[0].totalCount, page, pageSize},
+        data: haikus[0].data
+      }
+    })
+    
+  } catch (error) {
+    console.error(`Error is ${error}`)
     res.status(500).json({ msg: "Error retrieving haikus from DB." });
   }
 });
@@ -91,7 +201,6 @@ router.post("/", auth, async (req, res) => {
     visibleTo: req.body.visibleTo,
     likers: req.user.id
   });
-  console.log('Saving new haiku', newHaiku);
   newHaiku = await newHaiku.save();
   if (newHaiku) {
     res.status(200).json(newHaiku);

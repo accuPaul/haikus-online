@@ -80,6 +80,7 @@ function validateHaiku(haiku) {
     line2: Joi.string().min(12).max(70).required(),
     line3: Joi.string().min(10).max(50).required(),
     canScramble: Joi.boolean(),
+    visibleTo: Joi.string()
   });
   return schema.validate(haiku);
 }
