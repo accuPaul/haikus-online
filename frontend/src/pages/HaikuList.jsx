@@ -64,18 +64,6 @@ const HaikuList = () => {
         }
     }, [source, sort])
 
-
-
-    useEffect(()=> async () =>  {
-        let isMounted = true;
-        
-        if (isMounted) getList()
-        return () => {
-            isMounted = false;
-        }
-
-    }, [])
-
     async function getList() {
         await getHaikuList(params, page, pageSize, sortField, sortDir)
         .then(response => {
@@ -215,7 +203,6 @@ const HaikuList = () => {
     }
 
     useEffect(() => {   
-        console.log('page is '+page)
         getList();
     }, [page, sortField, sortDir])
 
@@ -230,13 +217,15 @@ const HaikuList = () => {
             <Button className="me-2" onClick={(e) => handleNew(e)}><FaPlus /> Add a haiku</Button>
             </div>
         </Alert>
+        { sort 
+        ?
         <Container justify>
         <ButtonToolbar className="mb-3" aria-label="Toolbar with Button groups">
         <Pagination className="me-2">
             <Pagination.First 
                 disabled={page === 1}
                 onClick={() => setPage(1)} />
-            <Pagination.Prev
+            <Pagination.Prev className="me-3"
             disabled={page === 1}
             onClick={() => setPage(page-1)} />
             {page > 2 ? <Pagination.Ellipsis disabled /> : <></> }
@@ -256,8 +245,8 @@ const HaikuList = () => {
                 onClick={() => setPage(3)}>3
                 </Pagination.Item> 
                 : <></> }
-            {page < pageCount ? <Pagination.Ellipsis /> : <></> }
-            <Pagination.Next disabled={page === pageCount}
+            {page < pageCount ? <Pagination.Ellipsis disabled /> : <></> }
+            <Pagination.Next className="ms-3" disabled={page === pageCount}
             onClick={() => setPage(page+1)} />
             <Pagination.Last  
                 disabled={page === pageCount}
@@ -288,6 +277,9 @@ const HaikuList = () => {
         : <></>}
         </ButtonToolbar>
         </Container>
+        :
+        <></>}
+        
                 {haikuList?.length ? (
                     <Row xs={1} md={2} className="g-4">
                     {haikuList.map(({ ...haiku }, idx) => (
@@ -308,7 +300,7 @@ const HaikuList = () => {
                                         <Nav justify>
                                             <Nav.Item>
                                             <button
-                                                className="upVote-btn"
+                                                className="upVote-btn me-2"
                                                 color="primary"
                                                 name="liked"
                                                 value={haiku._id}

@@ -5,7 +5,6 @@ import { loadSession } from '../components/loadSession';
 
 
 export async function getHaikuList(params, page, pageSize, sortField, sortDir) {
-    console.log(`params = ${JSON.stringify(params)}\npage=${JSON.stringify(page)}`)
     const controller = new AbortController();
     axios.create({
         baseURL: BASE_URL,
@@ -23,11 +22,9 @@ export async function getHaikuList(params, page, pageSize, sortField, sortDir) {
     }
 
     if (page) path = path + `?page=${page}`
-    if (pageSize) path = path + `?pageSize=${pageSize}`
-    if (sortField) path = path + `?sortBy=${sortField}`
-    if (sortDir) path = path + `?sortDir=${sortDir}`
-
-    console.log(`path = ${path}`)
+    if (pageSize) path = path + `&pageSize=${pageSize}`
+    if (sortField) path = path + `&sortBy=${sortField}`
+    if (sortDir) path = path + `&sortDir=${sortDir}`
 
     return axios.get(`/${path}`, makeHeaders(), {
         signal: controller.signal,

@@ -11,22 +11,43 @@ const router = express.Router();
 router.get("/today", makeScramble, async (req, res) => {
 
   const dow = "Haiku " + moment().dayOfYear() + "/366";
-  const today = moment().startOf('day');
-  const haikus = await Haiku.find({ $or: [{ title: dow }, { isScramble: true, dateAdded: { $gte: today } }] });
-  if (haikus) {
-    for (let haiku of haikus) {
-      haiku.authorName = await getAuthorName(haiku, req.user?req.user.id:null)
-    } 
-    res.json({
-      haikus: {
-        metadata: { totalCount: haikus.length },
-        data: haikus
+  const today = moment().startOf('day').toDate();
+  
+  try {
+    const haikus = await Haiku.aggregate([
+      {
+        $facet: {
+          metadata: [
+            { $match: { $or: [{ title: dow }, { isScramble: true, dateAdded: { $gte: today } }] } },
+            { $count: 'totalCount'}
+          ],
+          data: [
+            { $match: { $or: [{ title: dow }, { isScramble: true, dateAdded: { $gte: today } }] } },
+            { $addFields: 
+              {"nLikes" : {$size : "$likers"}} 
+            }
+        ]
+        }
       }
-    });
-  } else {
+      ])
+    
+      for (let haiku of haikus[0].data) {
+        haiku.authorName = await getAuthorName(haiku, req.user?req.user.id:null)
+      }
+      return res.status(200).json({
+        haikus: {
+          metadata: { totalCount: haikus[0].metadata[0].totalCount },
+          data: haikus[0].data
+        }
+      })
+      
+    
+  } catch (error) {
+    console.error(`Error is ${error}`)
     res.status(500).json({ msg: "Error retrieving haikus from DB." });
   }
 });
+
 
 router.get("/recent", async (req, res) => {
   let { page, pageSize } = req.query;
@@ -122,20 +143,19 @@ router.get("/popular", async (req, res) => {
 // @access private
 
 router.get("/user/:id", auth, async (req, res) => {
-  let { sortBy, sortDir, page, pageSize} = req.query
+  let { page, pageSize, sortBy, sortDir} = req.query
   const userId = ObjectId.createFromHexString(req.params.id)
 
   try {
     page = parseInt(page, 10) || 1;
     pageSize = parseInt(pageSize, 10) || 10;
+    
     sortBy = sortBy || 'dateAdded';
-    sortDir = parseInt(sortDir,10) || sortBy === 'dateAdded' ? -1 : 1;
+    sortDir = parseInt(sortDir, 10) || -1;
     const sort = {}
-   //   sortBy : sortDir,
-   //   '_id' : 1
-   // };
     sort[sortBy] = sortDir
-  
+    sort['_id'] = 1
+    
     const haikus = await Haiku.aggregate([
     {
       $facet: {

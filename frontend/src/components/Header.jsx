@@ -21,7 +21,7 @@ function Header() {
     return (
                 <Nav justify color="faded" className="bg-body-tertiary">
                         <Navbar.Brand href="/">Haikus Online!</Navbar.Brand>
-                        <Nav.Item align="end">
+                        <Nav.Item className='text-end'>
                             <Dropdown align="end">
                             {auth.token ?
                             <div>

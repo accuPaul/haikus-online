@@ -1,6 +1,6 @@
 import axios from "axios";
 import { makeHeaders } from "../components/makeHeaders";
-const BASE_URL = 'http://localhost:5000'
+import { BASE_URL } from "../actions/constants"
 
 export async function getUserList() {
     const controller = new AbortController();
